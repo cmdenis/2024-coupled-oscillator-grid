@@ -116,8 +116,10 @@ async function main(){
             //zmin: 0,
         };
 
+        var config = {responsive: true}
+
         
-        Plotly.react("myDiv", data, layout);
+        Plotly.react("myDiv", data, layout, config);
         //console.log("hello")
         phases = integrator(phases, frequencies, couplingStrength, 0.01)
 
