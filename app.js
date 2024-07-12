@@ -104,6 +104,9 @@ async function main(){
               z: math.mod(phases, 2*math.PI),
               type: "heatmap",
               colorscale: "Portland",
+              colorbar: {
+                title: "Phase"
+              },
               zmin: 0,
               zmax: 2*Math.PI
             }
