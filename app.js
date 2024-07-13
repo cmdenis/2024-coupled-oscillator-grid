@@ -1,9 +1,10 @@
-// Initialize matrix
-var xl = 10
-var yl = 10
-var phases = math.random([xl, yl])
-var frequencies = math.add(math.multiply(math.random([xl, yl]), 0.1), 1)
-var couplingStrength = 1.0
+// returns a gaussian random function with the given mean and stdev.
+function boxMuller(val1) {
+    var val2 = Math.random()
+    var z1 = Math.sqrt(-2*Math.log(val1))*Math.cos(2*Math.PI*val2)
+    var z2 = Math.sqrt(-2*Math.log(val1))*Math.sin(2*Math.PI*val2)
+    return z1
+}
 
 //console.log(frequencies)
 
@@ -35,6 +36,7 @@ function roll1(array, shift) {
   
     return math.transpose(result);
 }
+
 
 
 
@@ -87,13 +89,18 @@ function integrator(mat, frequencies, couplingStrength, timestep){
 var xl = 50
 var yl = 50
 var meanFrequency = 2*Math.PI
-var rangeFrequency = 0.0
+var rangeFrequency = 0.01
 
 var phases = math.multiply(math.random([xl, yl]), 2*Math.PI)
 var frequencies = math.add(math.multiply(math.random([xl, yl]), rangeFrequency), meanFrequency)
 var couplingStrength = 1.0
 var waitingTime = 1
 var loop_on = true
+
+
+// testing 
+aa = math.random([5, 5])
+console.log(math.map(aa, boxMuller))
 
 
 async function main(){
@@ -104,10 +111,35 @@ async function main(){
     while (true) {
         loop_on = true
         phases = math.multiply(math.random([xl, yl]), 2*Math.PI)
-        frequencies = math.add(math.multiply(math.random([xl, yl]), rangeFrequency), meanFrequency)
+        frequencies = math.map(math.random([xl, yl]), function(val1) {// using box muller to get a normal distribution
+            var val2 = Math.random()
+            var z1 = Math.sqrt(-2*Math.log(val1))*Math.cos(2*Math.PI*val2)
+            return z1
+        })
+        frequencies = math.abs(math.add(math.multiply(frequencies, rangeFrequency), meanFrequency))
+
         //couplingStrength = 1.0
         waitingTime = 1
         loop_on = true
+
+
+        // Make a histogram of intrinsic frequencies
+        console.log(frequencies.flat())
+
+        var traceHistogram = {
+            x: frequencies.flat(),
+            type: 'histogram',
+        };
+
+        var layoutHistogram = {
+            xaxis: {title: "Frequencies"}, 
+            yaxis: {title: "Count"},
+            height: 300,
+        }
+        var dataHistogram = [traceHistogram];
+        var config = {responsive: true}
+        Plotly.newPlot('histogramFrequencies', dataHistogram, layoutHistogram, config);
+
 
         // Smaller loop to run the simulation
         while (loop_on) {
@@ -136,7 +168,7 @@ async function main(){
             var config = {responsive: true}
     
             
-            Plotly.react("myDiv", data, layout, config);
+            Plotly.react("mainSim", data, layout, config);
             //console.log("hello")
             //console.log(couplingStrength)
             phases = integrator(phases, frequencies, couplingStrength, 0.01)
