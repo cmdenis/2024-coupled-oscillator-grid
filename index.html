@@ -6,13 +6,40 @@
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.3.2/math.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.css"
+      integrity="sha384-D+9gmBxUQogRLqvARvNLmA9hS2x//eK1FhVb9PiU86gmcrBrJAQT8okdJ4LMp2uv"
+      crossorigin="anonymous" />
+
+    <!-- The loading of KaTeX is deferred to speed up page rendering -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/katex.min.js"
+      integrity="sha384-483A6DwYfKeDa0Q52fJmxFXkcPCFfnXMoXblOkJ4JcA8zATN6Tm78UNL72AKk+0O"
+      crossorigin="anonymous"></script>
+
+    <!-- To automatically render math in text elements, include the auto-render extension: -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.10.0-rc.1/dist/contrib/auto-render.min.js"
+      integrity="sha384-yACMu8JWxKzSp/C1YV86pzGiQ/l1YUfE8oPuahJQxzehAjEt2GiQuy/BIvl9KyeF"
+      crossorigin="anonymous"
+      onload="renderMathInElement(document.body);"></script>
     <title>Document</title>
   </head>
   <body>
     <h1>Neighbor-to-neighbor coupling</h1>
     <p>
       Here is a basic app that simulates neighbor-to-neighbor coupling for a
-      grid of phase oscillators.
+      grid of phase oscillators. Each grid cell represents a single oscillator
+      which is coupled directly to its 4 nearest neighbors via a Kuramoto style
+      couping. All of the cells have their own intrinsic frequency which are
+      gaussian distributed (as illustrated in the histrogram). You can control
+      the parameters of this distribution. You can play around with the
+      parameters of the model (might need to reset the simulations for most of
+      them). The system is integrated with forward Euler and follows this
+      dynamic: $$\frac{d\phi_{x,y}}{dt} = \omega_{x,y} + k \sum_{i=\{-1, 1\}}
+      \sum_{j=\{-1, 1\}} \sin(\phi_{x+i,\ y+j} - \phi_{x,y}) $$
     </p>
     <div>
       <div>
@@ -46,7 +73,7 @@
           type="range"
           min="0.0"
           value="0.01"
-          max="2"
+          max="5"
           class="slider"
           id="sliderRangeFrequency"
           oninput="this.nextElementSibling.value = 'σ =  ' +this.value; rangeFrequency = this.value"

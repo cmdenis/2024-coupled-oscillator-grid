@@ -134,7 +134,10 @@ async function main(){
         var layoutHistogram = {
             xaxis: {title: "Frequencies"}, 
             yaxis: {title: "Count"},
-            height: 300,
+            height: 200,
+            margin: {
+                t: 1
+            }
         }
         var dataHistogram = [traceHistogram];
         var config = {responsive: true}
@@ -159,8 +162,10 @@ async function main(){
               ];
     
             var layout = {
+                xaxis: {title: "x"}, 
+                yaxis: {title: "y"},
                 margin: {
-                    t: 10
+                    t: 1
                   },
                 //zmin: 0,
             };
