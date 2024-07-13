@@ -14,8 +14,29 @@
       Here is a basic app that simulates neighbor-to-neighbor coupling for a
       grid of phase oscillators.
     </p>
+    <div>
+      <p id="labelSliderCouplingStrength"></p>
+      <input
+        type="range"
+        min="0.0"
+        value="1"
+        max="4"
+        class="slider"
+        id="sliderCouplingStrength"
+        oninput="this.nextElementSibling.value = 'k = ' +this.value; couplingStrength = this.value"
+        step="0.1" />
+      <output>k = 1</output>
+      <button type="button" id="resetButtonID" onclick="loop_on = false">
+        Reset
+      </button>
+    </div>
     <div id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div>
-    <div></div>
+
+    <script>
+      function updateSlider(variable) {
+        variable = this.value;
+      }
+    </script>
     <script src="app.js"></script>
   </body>
 </html>

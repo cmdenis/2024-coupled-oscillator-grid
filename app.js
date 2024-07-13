@@ -52,7 +52,7 @@ function diff(mat, frequencies, couplingStrength) {
 
     dphidt = math.add(
         frequencies, 
-        (
+        math.multiply(
             math.add(
                 math.add(
                     math.sin(
@@ -70,7 +70,8 @@ function diff(mat, frequencies, couplingStrength) {
                         math.subtract(roll1(mat, -1), mat)
                     ),
                 )
-            )
+            ),
+            couplingStrength
         )
     )
     //console.log(dphidt)
@@ -82,53 +83,82 @@ function integrator(mat, frequencies, couplingStrength, timestep){
     return math.add(mat, math.multiply(diff(mat, frequencies, couplingStrength), timestep))
 }
 
+// Initialize matrix
+var xl = 50
+var yl = 50
+var meanFrequency = 2*Math.PI
+var rangeFrequency = 0.0
 
+var phases = math.multiply(math.random([xl, yl]), 2*Math.PI)
+var frequencies = math.add(math.multiply(math.random([xl, yl]), rangeFrequency), meanFrequency)
+var couplingStrength = 1.0
+var waitingTime = 1
+var loop_on = true
 
 
 async function main(){
-    // Initialize matrix
-    var xl = 50
-    var yl = 50
-    var phases = math.multiply(math.random([xl, yl]), 2*Math.PI)
-    var frequencies = math.add(math.multiply(math.random([xl, yl]), 0.0), 2*Math.PI)
-    var couplingStrength = 1.0
-    var waitingTime = 1
 
-    phases = integrator(phases, frequencies, couplingStrength, 0.01)
     //console.log(phases)
 
+    // Overall loop to make the whole app run
     while (true) {
-        await sleep(waitingTime) // Pause 
-        var data = [
-            {
-              z: math.mod(phases, 2*math.PI),
-              type: "heatmap",
-              colorscale: "Portland",
-              colorbar: {
-                title: "Phase"
-              },
-              zmin: 0,
-              zmax: 2*Math.PI
-            }
-          ];
+        loop_on = true
+        phases = math.multiply(math.random([xl, yl]), 2*Math.PI)
+        frequencies = math.add(math.multiply(math.random([xl, yl]), rangeFrequency), meanFrequency)
+        //couplingStrength = 1.0
+        waitingTime = 1
+        loop_on = true
 
-        var layout = {
-            margin: {
-                t: 10
-              },
-            //zmin: 0,
-        };
-
-        var config = {responsive: true}
-
-        
-        Plotly.react("myDiv", data, layout, config);
-        //console.log("hello")
-        phases = integrator(phases, frequencies, couplingStrength, 0.01)
-
+        // Smaller loop to run the simulation
+        while (loop_on) {
+            //console.log(couplingStrength)
+            await sleep(waitingTime) // Pause 
+            var data = [
+                {
+                  z: math.mod(phases, 2*math.PI),
+                  type: "heatmap",
+                  colorscale: "Portland",
+                  colorbar: {
+                    title: "Phase"
+                  },
+                  zmin: 0,
+                  zmax: 2*Math.PI
+                }
+              ];
+    
+            var layout = {
+                margin: {
+                    t: 10
+                  },
+                //zmin: 0,
+            };
+    
+            var config = {responsive: true}
+    
+            
+            Plotly.react("myDiv", data, layout, config);
+            //console.log("hello")
+            //console.log(couplingStrength)
+            phases = integrator(phases, frequencies, couplingStrength, 0.01)
+    
+        }
     }
+}
 
-
+var resetButton = document.getElementById("resetButtonID")
+resetButton.oninput = function() {
+    console.log("test")
 }
 
 main()
+
+async function main2(){
+    await sleep(2000)
+    loop_on = false
+
+}
+
+
+//main2()
+
+
