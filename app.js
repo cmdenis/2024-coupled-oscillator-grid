@@ -95,12 +95,12 @@ var phases = math.multiply(math.random([xl, yl]), 2*Math.PI)
 var frequencies = math.add(math.multiply(math.random([xl, yl]), rangeFrequency), meanFrequency)
 var couplingStrength = 1.0
 var waitingTime = 1
-var loop_on = true
+var loop_on = false
+var loopPause = false
+var timeStep = 0.01
 
 
-// testing 
-aa = math.random([5, 5])
-console.log(math.map(aa, boxMuller))
+
 
 
 async function main(){
@@ -109,22 +109,40 @@ async function main(){
 
     // Overall loop to make the whole app run
     while (true) {
-        loop_on = true
-        phases = math.multiply(math.random([xl, yl]), 2*Math.PI)
-        frequencies = math.map(math.random([xl, yl]), function(val1) {// using box muller to get a normal distribution
+
+        //console.log("loop on:", loop_on)
+
+    
+        // If paused, stuck in this
+        while (loopPause == true) {
+            await sleep(10)
+            //console.log("Pausing")
+        }
+
+        // If reset is activated
+        if (loop_on == false) {
+            phases = math.multiply(math.random([xl, yl]), 2*Math.PI)
+            frequencies = math.map(math.random([xl, yl]), function(val1) {// using box muller to get a normal distribution
             var val2 = Math.random()
             var z1 = Math.sqrt(-2*Math.log(val1))*Math.cos(2*Math.PI*val2)
             return z1
-        })
-        frequencies = math.abs(math.add(math.multiply(frequencies, rangeFrequency), meanFrequency))
-
-        //couplingStrength = 1.0
-        waitingTime = 1
+            })
+            frequencies = math.abs(math.add(math.multiply(frequencies, rangeFrequency), meanFrequency))
+            var meanPhaseList1 = []
+            var meanPhaseList2 = []
+            var meanPhaseList3 = []
+            var meanPhaseList4 = []
+            var times = []
+            var currentTime = 0.
+        }
+        
         loop_on = true
+        loopPause = false
+    
 
 
         // Make a histogram of intrinsic frequencies
-        console.log(frequencies.flat())
+        //console.log(frequencies.flat())
 
         var traceHistogram = {
             x: frequencies.flat(),
@@ -142,12 +160,16 @@ async function main(){
         var dataHistogram = [traceHistogram];
         var config = {responsive: true}
         Plotly.newPlot('histogramFrequencies', dataHistogram, layoutHistogram, config);
+        
 
 
         // Smaller loop to run the simulation
-        while (loop_on) {
-            //console.log(couplingStrength)
-            await sleep(waitingTime) // Pause 
+        while (loop_on && !(loopPause)) {
+            //console.log("loop on:", loop_on)
+            //console.log("loop pause:", loopPause)
+            
+            // Plotting the main simulation
+            await sleep(waitingTime) 
             var data = [
                 {
                   z: math.mod(phases, 2*math.PI),
@@ -160,42 +182,191 @@ async function main(){
                   zmax: 2*Math.PI
                 }
               ];
-    
+
+            
             var layout = {
                 xaxis: {title: "x"}, 
                 yaxis: {title: "y"},
                 margin: {
                     t: 1
                   },
+                shapes: [
+                    {
+                        type: 'rect',
+                        x0: -0.5 + 0,
+                        y0: -0.5 + 0,
+                        x1: -0.5 + 50, 
+                        y1: -0.5 + 50,
+                        line: {
+                            color: 'rgba(59, 117, 175, 1)',
+                            width: 4
+                          }
+                    },
+                    {
+                        type: 'rect',
+                        x0: -0.5 + 0,
+                        y0: -0.5 + 0,
+                        x1: -0.5 + 20, 
+                        y1: -0.5 + 20,
+                        line: {
+                            color: 'rgba(239, 134, 54, 1)',
+                            width: 4
+                          }
+                    },
+                    {
+                        type: 'rect',
+                        x0: -0.5 + 0,
+                        y0: -0.5 + 0,
+                        x1: -0.5 + 10, 
+                        y1: -0.5 + 10,
+                        line: {
+                            color: 'rgba(81, 158, 62, 1)',
+                            width: 4
+                          }
+                    },
+
+                    {
+                        type: 'rect',
+                        x0: -0.5 + 0,
+                        y0: -0.5 + 0,
+                        x1: -0.5 + 5, 
+                        y1: -0.5 + 5,
+                        line: {
+                            color: 'rgba(197, 58, 50, 1)',
+                            width: 4
+                          }
+                    },
+                    
+
+                ]
+
+                
+                
                 //zmin: 0,
             };
-    
+
             var config = {responsive: true}
-    
-            
             Plotly.react("mainSim", data, layout, config);
-            //console.log("hello")
-            //console.log(couplingStrength)
-            phases = integrator(phases, frequencies, couplingStrength, 0.01)
-    
+
+            phases = integrator(phases, frequencies, couplingStrength, timeStep)
+
+
+            // Plotting the order parameter over time
+            currentTime += timeStep;  // advancing time
+            times.push(currentTime);    // storing time in time list
+            meanPhaseList1.push(         // Storing order parameter of the whole grid
+                math.abs(
+                    math.mean(
+                        math.exp(
+                            math.multiply(
+                                math.mod(phases, 2*math.PI),
+                                math.i
+                            )
+                        )
+                    )
+                )
+            )
+
+            meanPhaseList2.push(         // Storing the order parameter of a 20x20 chunk
+                math.abs(
+                    math.mean(
+                        math.exp(
+                            math.multiply(
+                                math.mod(
+                                    math.subset(phases, math.index(math.range(0,20), math.range(0,20))), 
+                                    2*math.PI
+                                ),
+                                math.i
+                            )
+                        )
+                    )
+                )
+            )
+
+            meanPhaseList3.push(         // Storing the order parameter of a 10x10 chunk
+                math.abs(
+                    math.mean(
+                        math.exp(
+                            math.multiply(
+                                math.mod(
+                                    math.subset(phases, math.index(math.range(0,10), math.range(0,10))), 
+                                    2*math.PI
+                                ),
+                                math.i
+                            )
+                        )
+                    )
+                )
+            )
+
+            meanPhaseList4.push(         // Storing the order parameter of a 5x5 chunk
+                math.abs(
+                    math.mean(
+                        math.exp(
+                            math.multiply(
+                                math.mod(
+                                    math.subset(phases, math.index(math.range(0,5), math.range(0,5))), 
+                                    2*math.PI
+                                ),
+                                math.i
+                            )
+                        )
+                    )
+                )
+            )
+
+
+            var trace1 = {
+                x: times,
+                y: meanPhaseList1,
+                type: 'scatter',
+                name: '50x50 ROI'
+              };
+
+            var trace2 = {
+                x: times,
+                y: meanPhaseList2,
+                type: 'scatter',
+                name: '20x20 ROI'
+            };
+
+            var trace3 = {
+                x: times,
+                y: meanPhaseList3,
+                type: 'scatter',
+                name: '10x10 ROI'
+            };
+            var trace4 = {
+                x: times,
+                y: meanPhaseList4,
+                type: 'scatter',
+                name: '5x5 ROI'
+            };
+            
+              
+              var data = [trace1, trace2, trace3, trace4];
+
+              var layout = {
+                xaxis: {title: "Time"}, 
+                yaxis: {title: "Kuramoto Order Parameter"},
+                margin: {
+                    t: 1
+                  },
+              }
+              
+              
+              Plotly.newPlot('plotOrderParameter', data, layout);
+
+              // If the pause button is pressed
+              
+
+
+
         }
     }
 }
 
-var resetButton = document.getElementById("resetButtonID")
-resetButton.oninput = function() {
-    console.log("test")
-}
-
 main()
 
-async function main2(){
-    await sleep(2000)
-    loop_on = false
-
-}
-
-
-//main2()
 
 
