@@ -98,6 +98,7 @@ var waitingTime = 1
 var loop_on = false
 var loopPause = false
 var timeStep = 0.01
+var rangePhases = 1
 
 
 
@@ -121,7 +122,7 @@ async function main(){
 
         // If reset is activated
         if (loop_on == false) {
-            phases = math.multiply(math.random([xl, yl]), 2*Math.PI)
+            phases = math.multiply(math.random([xl, yl]), 2*Math.PI*rangePhases)
             frequencies = math.map(math.random([xl, yl]), function(val1) {// using box muller to get a normal distribution
             var val2 = Math.random()
             var z1 = Math.sqrt(-2*Math.log(val1))*Math.cos(2*Math.PI*val2)
@@ -142,25 +143,24 @@ async function main(){
 
 
         // Make a histogram of intrinsic frequencies
-        //console.log(frequencies.flat())
-
-        var traceHistogram = {
-            x: frequencies.flat(),
-            type: 'histogram',
-        };
-
-        var layoutHistogram = {
-            xaxis: {title: "Frequencies"}, 
-            yaxis: {title: "Count"},
-            height: 200,
-            margin: {
-                t: 1
+        {
+            var traceHistogram = {
+                x: frequencies.flat(),
+                type: 'histogram',
+            };
+    
+            var layoutHistogram = {
+                xaxis: {title: "Frequencies"}, 
+                yaxis: {title: "Count"},
+                height: 200,
+                margin: {
+                    t: 1
+                }
             }
+            var dataHistogram = [traceHistogram];
+            var config = {responsive: true}
+            Plotly.newPlot('histogramFrequencies', dataHistogram, layoutHistogram, config);
         }
-        var dataHistogram = [traceHistogram];
-        var config = {responsive: true}
-        Plotly.newPlot('histogramFrequencies', dataHistogram, layoutHistogram, config);
-        
 
 
         // Smaller loop to run the simulation
@@ -170,6 +170,7 @@ async function main(){
             
             // Plotting the main simulation
             await sleep(waitingTime) 
+            
             var data = [
                 {
                   z: math.mod(phases, 2*math.PI),
@@ -183,8 +184,8 @@ async function main(){
                 }
               ];
 
-            
             var layout = {
+                uirevision:'true',
                 xaxis: {title: "x"}, 
                 yaxis: {title: "y"},
                 margin: {
@@ -239,9 +240,6 @@ async function main(){
                     
 
                 ]
-
-                
-                
                 //zmin: 0,
             };
 
@@ -252,112 +250,124 @@ async function main(){
 
 
             // Plotting the order parameter over time
-            currentTime += timeStep;  // advancing time
-            times.push(currentTime);    // storing time in time list
-            meanPhaseList1.push(         // Storing order parameter of the whole grid
-                math.abs(
-                    math.mean(
-                        math.exp(
-                            math.multiply(
-                                math.mod(phases, 2*math.PI),
-                                math.i
+            {
+                currentTime += timeStep;  // advancing time
+                times.push(currentTime);    // storing time in time list
+                meanPhaseList1.push(         // Storing order parameter of the whole grid
+                    math.abs(
+                        math.mean(
+                            math.exp(
+                                math.multiply(
+                                    math.mod(phases, 2*math.PI),
+                                    math.i
+                                )
                             )
                         )
                     )
                 )
-            )
 
-            meanPhaseList2.push(         // Storing the order parameter of a 20x20 chunk
-                math.abs(
-                    math.mean(
-                        math.exp(
-                            math.multiply(
-                                math.mod(
-                                    math.subset(phases, math.index(math.range(0,20), math.range(0,20))), 
-                                    2*math.PI
-                                ),
-                                math.i
+                meanPhaseList2.push(         // Storing the order parameter of a 20x20 chunk
+                    math.abs(
+                        math.mean(
+                            math.exp(
+                                math.multiply(
+                                    math.mod(
+                                        math.subset(phases, math.index(math.range(0,20), math.range(0,20))), 
+                                        2*math.PI
+                                    ),
+                                    math.i
+                                )
                             )
                         )
                     )
                 )
-            )
 
-            meanPhaseList3.push(         // Storing the order parameter of a 10x10 chunk
-                math.abs(
-                    math.mean(
-                        math.exp(
-                            math.multiply(
-                                math.mod(
-                                    math.subset(phases, math.index(math.range(0,10), math.range(0,10))), 
-                                    2*math.PI
-                                ),
-                                math.i
+                meanPhaseList3.push(         // Storing the order parameter of a 10x10 chunk
+                    math.abs(
+                        math.mean(
+                            math.exp(
+                                math.multiply(
+                                    math.mod(
+                                        math.subset(phases, math.index(math.range(0,10), math.range(0,10))), 
+                                        2*math.PI
+                                    ),
+                                    math.i
+                                )
                             )
                         )
                     )
                 )
-            )
 
-            meanPhaseList4.push(         // Storing the order parameter of a 5x5 chunk
-                math.abs(
-                    math.mean(
-                        math.exp(
-                            math.multiply(
-                                math.mod(
-                                    math.subset(phases, math.index(math.range(0,5), math.range(0,5))), 
-                                    2*math.PI
-                                ),
-                                math.i
+                meanPhaseList4.push(         // Storing the order parameter of a 5x5 chunk
+                    math.abs(
+                        math.mean(
+                            math.exp(
+                                math.multiply(
+                                    math.mod(
+                                        math.subset(phases, math.index(math.range(0,5), math.range(0,5))), 
+                                        2*math.PI
+                                    ),
+                                    math.i
+                                )
                             )
                         )
                     )
                 )
-            )
+                var trace1 = {
+                    x: times,
+                    y: meanPhaseList1,
+                    type: 'scatter',
+                    name: '50x50 ROI'
+                  };
+    
+                var trace2 = {
+                    x: math.multiply(times, 1), // This is SO weird, for some reason, plotly does some super weird stuff if we just put times...
+                    // x: times,
+                    y: meanPhaseList2,
+                    type: 'scatter',
+                    name: '20x20 ROI'
+                };
+    
+                var trace3 = {
+                    x: times,
+                    y: meanPhaseList3,
+                    type: 'scatter',
+                    name: '10x10 ROI'
+                };
+                var trace4 = {
+                    x: times,
+                    y: meanPhaseList4,
+                    type: 'scatter',
+                    name: '5x5 ROI'
+                };
 
+                var data = [trace1, trace2, trace3, trace4];
+    
+                  var layout = {
+                    uirevision: "true",
+                    xaxis: {
+                        title: "Time",
+                    }, 
+                    yaxis: {
+                        title: "Kuramoto Order Parameter",
+                    },
+                    margin: {
+                        t: 10
+                      },
+                  }
 
-            var trace1 = {
-                x: times,
-                y: meanPhaseList1,
-                type: 'scatter',
-                name: '50x50 ROI'
-              };
+                  data
 
-            var trace2 = {
-                x: times,
-                y: meanPhaseList2,
-                type: 'scatter',
-                name: '20x20 ROI'
-            };
+                  
+                  
+                  //console.log(trace1)
+                  Plotly.react('plotOrderParameter', data, layout, config);
+                  
 
-            var trace3 = {
-                x: times,
-                y: meanPhaseList3,
-                type: 'scatter',
-                name: '10x10 ROI'
-            };
-            var trace4 = {
-                x: times,
-                y: meanPhaseList4,
-                type: 'scatter',
-                name: '5x5 ROI'
-            };
+            }
+        
+
             
-              
-              var data = [trace1, trace2, trace3, trace4];
-
-              var layout = {
-                xaxis: {title: "Time"}, 
-                yaxis: {title: "Kuramoto Order Parameter"},
-                margin: {
-                    t: 1
-                  },
-              }
-              
-              
-              Plotly.newPlot('plotOrderParameter', data, layout);
-
-              // If the pause button is pressed
               
 
 

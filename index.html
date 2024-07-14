@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
     <link rel="icon" href="img/icon.png" />
+    <script
+      type="text/javascript"
+      async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.3.2/math.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
     <link
@@ -42,6 +46,13 @@
         most of them). The system is integrated with forward Euler and follows
         this dynamic: $$\frac{d\phi_{x,y}}{dt} = \omega_{x,y} + k \sum_{i=\{-1,
         1\}} \sum_{j=\{-1, 1\}} \sin(\phi_{x+i,\ y+j} - \phi_{x,y}) $$
+        Intuitively, we can imagine that every pixel in the colored grid
+        corresponds to some oscillator, that want to synchronize to its four
+        nearest neighbor. The \(k\) parameter corresponds to how strongly each
+        oscillator want to sync-up to its neighbors. The \(E(\omega)\) parameter
+        corresponds to how fast (on average) are all the oscillators
+        oscillating, and the \(\sigma\) the standard deviation of this
+        distribution of frequencies.
       </p>
     </section>
     <section>
@@ -67,9 +78,14 @@
             max="10"
             class="slider"
             id="sliderMeanFrequency"
-            oninput="this.nextElementSibling.value = 'omega = ' +this.value; meanFrequency = this.value"
+            oninput="
+              
+              console.log(stringCorrect)
+              this.nextElementSibling.value = 'E(ω) = ' + this.value; 
+              meanFrequency = this.value
+              "
             step="0.1" />
-          <output> omega = 6.28</output>
+          <output> E(ω) = 6.28</output>
         </div>
 
         <div>
@@ -83,6 +99,18 @@
             oninput="this.nextElementSibling.value = 'σ =  ' +this.value; rangeFrequency = this.value"
             step="0.01" />
           <output> σ = 0.01</output>
+        </div>
+        <div>
+          <input
+            type="range"
+            min="0.0"
+            value="1"
+            max="1"
+            class="slider"
+            id="sliderRangeFrequency"
+            oninput="this.nextElementSibling.value = 'Phases range =  ' + this.value; rangePhases = this.value"
+            step="0.01" />
+          <output> Phases range = 1.00</output>
         </div>
 
         <div>
@@ -127,9 +155,7 @@
     <div id="mainSim" style="height: 50%">
       <!-- Plotly chart will be drawn inside this DIV -->
     </div>
-    <div
-      style="background-color: blue; height: 40%"
-      id="plotOrderParameter"></div>
+    <div style="height: 40%" id="plotOrderParameter"></div>
     <script>
       function changeLabel() {
         const button = document.getElementById("pauseButton");
