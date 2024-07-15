@@ -36,23 +36,45 @@
     <section>
       <h1>Neighbor-to-neighbor coupling</h1>
       <p>
-        Here is a basic app that simulates neighbor-to-neighbor coupling for a
-        grid of phase oscillators. Each grid cell represents a single oscillator
-        which is coupled directly to its 4 nearest neighbors via a Kuramoto
-        style couping. All of the cells have their own intrinsic frequency which
-        are gaussian distributed (as illustrated in the histrogram). You can
-        control the parameters of this distribution. You can play around with
-        the parameters of the model (might need to reset the simulations for
-        most of them). The system is integrated with forward Euler and follows
-        this dynamic: $$\frac{d\phi_{x,y}}{dt} = \omega_{x,y} + k \sum_{i=\{-1,
-        1\}} \sum_{j=\{-1, 1\}} \sin(\phi_{x+i,\ y+j} - \phi_{x,y}) $$
-        Intuitively, we can imagine that every pixel in the colored grid
-        corresponds to some oscillator, that want to synchronize to its four
-        nearest neighbor. The \(k\) parameter corresponds to how strongly each
-        oscillator want to sync-up to its neighbors. The \(E(\omega)\) parameter
-        corresponds to how fast (on average) are all the oscillators
-        oscillating, and the \(\sigma\) the standard deviation of this
-        distribution of frequencies.
+        Here is a basic app that simulates the
+        <a href="https://en.wikipedia.org/wiki/Kuramoto_model"
+          >Kuramoto model</a
+        >
+        with neighbor-to-neighbor coupling for a grid of phase oscillators. Each
+        grid cell represents a single oscillator which is coupled directly to
+        its 4 nearest neighbors via a sinusoidal couping. All of the cells have
+        their own intrinsic frequency which are gaussian distributed (as
+        illustrated in the histrogram). You can control the parameters of this
+        distribution. You can play around with the parameters of the model
+        (might need to reset the simulations for most of them). The system is
+        integrated with forward Euler and follows this dynamic:
+        $$\frac{d\phi_{x,y}}{dt} = \omega_{x,y} + k \sum_{i=\{-1, 1\}}
+        \sum_{j=\{-1, 1\}} \sin(\phi_{x+i,\ y+j} - \phi_{x,y}) $$ Intuitively,
+        we can imagine that every pixel in the colored grid corresponds to some
+        oscillator, that want to synchronize to its four nearest neighbor. The
+        \(k\) parameter corresponds to how strongly each oscillator want to
+        sync-up to its neighbors. The \(E(\omega)\) parameter corresponds to how
+        fast (on average) are all the oscillators oscillating, and the
+        \(\sigma\) the standard deviation of this distribution of frequencies.
+        There is also a parameter for the range of uniformly distributed initial
+        phases for the simulation. A range of \(0\) means that all the
+        oscillators have the same phase when starting, and a range of \(1\)
+        means that all the oscillators have their initial phases uniformly
+        distributed around all the possible phases (from \(0\) to \(2\pi\)).
+      </p>
+      <p>
+        A quantity of interest for such a system is the
+        <em>Kuramoto Order Parameter</em>. This quantity measures roughly "how
+        synchronized are the oscillators". An order parameter of \(1\) means
+        that all the oscillator are oscillating with the exact same phase. An
+        order parameter or \(0\) means that all the oscillators are oscillating
+        with different phases from each other. We can compute this quantity for
+        any group of similar oscillators. Under the plot with all the
+        oscillators evolving, you will find the evolution in time of this order
+        parameter. Since this parameter depends on the group of oscillators
+        studied, we show the order parameter for different Regions of Interest
+        (ROI), delimited by color-coded rectangles. Notice that the smaller ROIs
+        usually have higher order parameters.
       </p>
     </section>
     <section>
@@ -156,6 +178,7 @@
       <!-- Plotly chart will be drawn inside this DIV -->
     </div>
     <div style="height: 40%" id="plotOrderParameter"></div>
+
     <script>
       function changeLabel() {
         const button = document.getElementById("pauseButton");
