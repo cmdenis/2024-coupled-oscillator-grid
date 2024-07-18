@@ -63,6 +63,8 @@ function selectCouplingFunction(choice) {
     
 }
 
+selectCouplingFunction("rectified")
+
 
 
 // Define function for the derivative
@@ -112,17 +114,17 @@ function integrator(mat, frequencies, couplingStrength, timestep){
 // Initialize matrix
 var xl = 50
 var yl = 50
-var meanFrequency = 2*Math.PI
-var rangeFrequency = 0.01
+var meanFrequency = 10
+var rangeFrequency = 0.5
 
 var phases = math.multiply(math.random([xl, yl]), 2*Math.PI)
 var frequencies = math.add(math.multiply(math.random([xl, yl]), rangeFrequency), meanFrequency)
-var couplingStrength = 1.0
+var couplingStrength = 2.0
 var waitingTime = 1
 var loop_on = false
 var loopPause = false
 var timeStep = 0.01
-var rangePhases = 1
+var rangePhases = 0.3
 
 
 
@@ -380,7 +382,6 @@ async function main(){
                       },
                   }
 
-                  data
 
                   
                   
