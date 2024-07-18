@@ -38,11 +38,31 @@ function roll1(array, shift) {
 }
 
 
+// Define coupling function that will be overwritten by the selector box on the website
+function couplingFunction(x) {
+    return Math.sin(x)
+}
 
+function selectCouplingFunction(choice) {
+    // Function to select which coupling function to use in the system
+    if (choice == "sine") {
+        couplingFunction = Math.sin
+    } else if (choice == "cosine") {
+        couplingFunction == Math.cos
+    } else if (choice == "rectified") {
+        couplingFunction = function (x) {
+            return Math.max(0, Math.sin(x))
+        }
+    } else if (choice == 1) {
+        couplingFunction = function () {
+            return 1.0
+        }
+    } else {
+        console.log("Error: coupling function not defined")
+    }
+    
+}
 
-//console.log(data)
-//console.log(roll1(data, -1))
-//console.log(roll0(data, -1))
 
 
 // Define function for the derivative
@@ -57,19 +77,23 @@ function diff(mat, frequencies, couplingStrength) {
         math.multiply(
             math.add(
                 math.add(
-                    math.sin(
-                        math.subtract(roll0(mat, 1), mat)
+                    math.map(
+                        math.subtract(roll0(mat, 1), mat),
+                        couplingFunction
                     ),
-                    math.sin(
-                        math.subtract(roll0(mat, -1), mat)
+                    math.map(
+                        math.subtract(roll0(mat, -1), mat),
+                        couplingFunction
                     ),
                 ),
                 math.add(
-                    math.sin(
-                        math.subtract(roll1(mat, 1), mat)
+                    math.map(
+                        math.subtract(roll1(mat, 1), mat),
+                        couplingFunction
                     ),
-                    math.sin(
-                        math.subtract(roll1(mat, -1), mat)
+                    math.map(
+                        math.subtract(roll1(mat, -1), mat),
+                        couplingFunction
                     ),
                 )
             ),

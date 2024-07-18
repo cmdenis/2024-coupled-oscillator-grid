@@ -101,8 +101,6 @@
             class="slider"
             id="sliderMeanFrequency"
             oninput="
-              
-              console.log(stringCorrect)
               this.nextElementSibling.value = 'E(ω) = ' + this.value; 
               meanFrequency = this.value
               "
@@ -145,7 +143,18 @@
             id="sliderSizeX"
             oninput="this.nextElementSibling.value = 'size: ' +this.value; xl = this.value; yl = this.value"
             step="5" />
-          <output> size = 50</output>
+          <output>size = 50</output>
+        </div>
+
+        <div style="padding-bottom: 10px; padding-top: 5px">
+          <select
+            id="model-selector"
+            onchange="selectCouplingFunction(this.value)">
+            <option value="sine">Coupling function: sin( )</option>
+            <option value="cosine">Coupling function: cos( )</option>
+            <option value="rectified">Coupling function: max(0, sin( ))</option>
+            <option value="1">Coupling function: 1</option>
+          </select>
         </div>
 
         <button type="button" id="resetButtonID" onclick="loop_on = false">
