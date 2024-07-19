@@ -108,7 +108,19 @@ function diff(mat, frequencies, couplingStrength) {
 
 
 function integrator(mat, frequencies, couplingStrength, timestep){
-    return math.add(mat, math.multiply(diff(mat, frequencies, couplingStrength), timestep))
+    return math.add(
+        mat, 
+        math.multiply(
+            math.add(
+                diff(mat, frequencies, couplingStrength),
+                math.multiply(
+                    math.random([xl, yl]),
+                    noiseAmount
+                )
+            ), 
+            timestep
+        )
+    )
 }
 
 // Initialize matrix
@@ -125,6 +137,7 @@ var loop_on = false
 var loopPause = false
 var timeStep = 0.01
 var rangePhases = 0.3
+var noiseAmount = 0.0
 
 
 
