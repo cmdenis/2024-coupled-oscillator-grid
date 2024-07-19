@@ -114,14 +114,18 @@ function integrator(mat, frequencies, couplingStrength, timestep){
             math.add(
                 diff(mat, frequencies, couplingStrength),
                 math.multiply(
-                    math.random([xl, yl]),
+                    math.add(
+                        math.random([xl, yl]),
+                        -0.5
+                    ),
                     noiseAmount
-                )
+                )     
             ), 
             timestep
         )
     )
 }
+
 
 // Initialize matrix
 var xl = 50
